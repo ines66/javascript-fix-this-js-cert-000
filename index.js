@@ -31,16 +31,14 @@ var pie = {
 //der jeweils das pie oder cake div wiedergeben soll. Das soll man dann an die anderen Funktionen weitergeben können, damit sie
 //auch immer das richtige DOM-Element updaten
 function makeCake() {
-  var updateStatus = document.getElementById("cake");
-  mix.call(cake, updateStatus)
+  mix.call(cake, this)
 }
 
 function makePie() {
-	//die Variable updatePieStatus hier ist ein DOM-Element, aber auch ein Objekt und kann deshalb später als this in UpdateStatus verwendet werden
-  var updateStatus = document.getElementById("pie");
+	//die Variable updateStatus hier ist ein DOM-Element, aber auch ein Objekt und kann deshalb später als this in UpdateStatus verwendet werden
   pie.decorate = cake.decorate.bind(pie);
   //Das this ist hier der pie und das andere DOM-Objekt wird als Argument an die mix-Funktion übergeben
-  mix.call(pie, updateStatus)
+  mix.call(pie, this)
 }
 
 
@@ -77,10 +75,10 @@ function cool(updateStatus) {
 function makeDessert() {
 //wenn man auf einem DOM-Element eine Funktion aufruft, dann hat die Funktion das DOM-Element als this
 if (this.innerHTML==="Make Cake"){
-makeCake()
+makeCake.call(document.getElementById("cake"))
 }
  else {
-makePie()
+makePie.call(document.getElementById("pie"))
 
  }
 
