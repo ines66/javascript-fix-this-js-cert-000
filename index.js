@@ -6,14 +6,14 @@ var cake = {
   bakeTime: "45 minutes",
   customer: "Tommy",
   //die Callback -Funktion in timeout muss hier zu dem richtigen Inhalt gebunden werden
-  decorate: function(updateFunction) {
+  decorate: function(updateStatus) {
     var status = "Decorating with " + this.topping + ". Ready to eat soon!"
-    updateStatus.call(updateFunction, status)
+    updateFunction.call(updateStatus, status)
 	//hier rufe ich ein letztes Mal die Funktion "updateStatus" auf, mit der ich den Text im DOM poste
 	//- hier erzeugt die Funktion serve den Text das thsi ist auch wieder das DOM-Objekt,
 	//	das ich bei makeCake oder Make Pie erzeugt hatte
     setTimeout(() => {
-      updateStatus.call(updateFunction, serve.call(this, "Happy Eating!", this.customer))
+      updateFunction.call(updateStatus, serve.call(this, "Happy Eating!", this.customer))
     }, 2000)
   }
 }
@@ -45,33 +45,33 @@ function makePie() {
 
 
 //diese Funktion soll nicht verändert werden - sie muss immer mit dem DOM-Element/Objekt als this aufgerufen werden
-function updateStatus(statusText) {
+function updateFunction(statusText) {
   this.getElementsByClassName("status")[0].innerText = statusText
 }
 
-function bake(updateFunction) {
+function bake(updateStatus) {
   var status = "Baking at " + this.bakeTemp + " for " + this.bakeTime
   setTimeout(() => {
-    cool.call(this, updateFunction)
+    cool.call(this, updateStatus)
   }, 2000);
-  updateStatus.call(updateFunction, status)
+  updateFunction.call(updateStatus, status)
 }
 
-function mix(updateFunction) {
+function mix(updateStatus) {
   var status = "Mixing " + this.ingredients.join(", ")
 //Der Trick hier ist, dass man das DOM-Objekt (updateFunction) einmal als Argument übergibt und einmal als this-Objekt
  setTimeout (() => {
-    bake.call(this, updateFunction)
+    bake.call(this, updateStatus)
   }, 2000);
-  updateStatus.call(updateFunction, status)
+  updateFunction.call(updateStatus, status)
 }
 
-function cool(updateFunction) {
+function cool(updateStatus) {
   var status = "It has to cool! Hands off!"
     setTimeout(() => {
     this.decorate.call(this, updateFunction)
   }, 2000);
-  updateStatus.call(updateFunction, status)
+  updateFunction.call(updateStatus, status)
 }
 
 function makeDessert() {
