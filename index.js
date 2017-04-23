@@ -6,17 +6,16 @@ var cake = {
   bakeTime: "45 minutes",
   customer: "Tommy",
   //die Callback -Funktion in timeout muss hier zu dem richtigen Inhalt gebunden werden
-  decorate: function(updateStatus) {
-    var status = "Decorating with " + this.topping + ". Ready to eat soon!"
-    updateFunction.call(updateStatus, status)
-	//hier rufe ich ein letztes Mal die Funktion "updateStatus" auf, mit der ich den Text im DOM poste
-	//- hier erzeugt die Funktion serve den Text das thsi ist auch wieder das DOM-Objekt,
-	//	das ich bei makeCake oder Make Pie erzeugt hatte
-    setTimeout(() => {
-      updateFunction.call(updateStatus, serve.call(this, "Happy Eating!", this.customer))
-    }, 2000)
+  decorate: function(updateFunction) {
+    var status = "Decorating with " + this.topping + ". Ready to eat soon!";
+    updateFunction(status)
+	//hier rufe ich ein letztes Mal die ergänzte Funktion (mit dem DOM-Element) "updateFunction" auf, mit der ich den Text im DOM poste
+	//- hier erzeugt die Funktion serve den Text, ich kann die Funktion updateFunction im timeout nicht direkt ausführen, deswegen muss
+	//ich eine Funktion definieren, die die Funktion ausführt
+    setTimeout( () => {updateFunction(serve("Happy Eating!", this.customer))}, 2000)
   }
 }
+
 
 var pie = {
   name: "Apple Pie",
@@ -26,55 +25,55 @@ var pie = {
   bakeTime: "75 minutes",
   customer: "Tammy"
 }
-//In der makePiFunktion soll man die decorate-Funktion von cake borgen und für den Pie verfügbar machen
-//Innerhalb der makeCake und makePie Funktionen soll man eine Version von updateStatus erzeugen mit dem richtigen this-Inhalt,
+
+//Innerhalb der makeCake und makePie Funktionen soll man eine neue Version von updateStatus erzeugen, mit dem richtigen this-Inhalt(DOM-Objekt),
 //der jeweils das pie oder cake div wiedergeben soll. Das soll man dann an die anderen Funktionen weitergeben können, damit sie
 //auch immer das richtige DOM-Element updaten
 function makeCake() {
-  mix.call(cake, this)
+  var updateCakeStatus = updateStatus.bind(this)
+  mix.call(cake, updateCakeStatus)
 }
-
+//In der makePie Funktion soll man die decorate-Funktion von cake borgen und für den Pie verfügbar machen
 function makePie() {
-	//die Variable updateStatus hier ist ein DOM-Element, aber auch ein Objekt und kann deshalb später als this in UpdateStatus verwendet werden
   pie.decorate = cake.decorate.bind(pie);
+  //die Variable updatePieStatus hier ist die Funktion updateSatus mit dem DOM-Objekt als this
+  var updatePieStatus = updateStatus.bind(this)
   //Das this ist hier der pie und das andere DOM-Objekt wird als Argument an die mix-Funktion übergeben
-  mix.call(pie, this)
+  mix.call(pie, updatePieStatus)
 }
 
 
-//diese Funktion soll nicht verändert werden - sie muss immer mit dem DOM-Element/Objekt als this aufgerufen werden
-function updateFunction(statusText) {
+//diese Funktion soll nicht verändert werden
+// sie wurde mit dem DOM-Element/Objekt als this durch .bind ergänzt und wird dann immer in der Version verwendet
+function updateStatus(statusText) {
   this.getElementsByClassName("status")[0].innerText = statusText
 }
 
-function bake(updateStatus) {
+function bake(updateFunction) {
   var status = "Baking at " + this.bakeTemp + " for " + this.bakeTime
-  setTimeout(() => {
-    cool.call(this, updateStatus)
-  }, 2000);
-  updateFunction.call(updateStatus, status)
+  //Achtung in setTimeout wird die Funktion nicht aufgerufen nur definiert
+  setTimeout(cool.bind(this, updateFunction), 2000);
+  updateFunction(status)
 }
 
-function mix(updateStatus) {
+function mix(updateFunction) {
   var status = "Mixing " + this.ingredients.join(", ")
-//Der Trick hier ist, dass man das DOM-Objekt (updateFunction) einmal als Argument übergibt und einmal als this-Objekt
- setTimeout (() => {
-    bake.call(this, updateStatus)
-  }, 2000);
-  updateFunction.call(updateStatus, status)
+//Hier wird mit this jeweils Kuchen oder Pie weitergegeben, die updateFunction kennt schon ihr richtiges this
+ setTimeout (bake.bind(this, updateFunction), 2000)
+ //someFn(callback.bind(this), 2000)
+   updateFunction(status);
 }
 
-function cool(updateStatus) {
+function cool(updateFunction) {
   var status = "It has to cool! Hands off!"
-    setTimeout(() => {
-    this.decorate.call(this, updateStatus)
-  }, 2000);
-  updateFunction.call(updateStatus, status)
+  setTimeout(this.decorate.bind(this, updateFunction), 2000)
+  updateFunction(status)
 }
 
 function makeDessert() {
 //wenn man auf einem DOM-Element eine Funktion aufruft, dann hat die Funktion das DOM-Element als this
 if (this.innerHTML==="Make Cake"){
+//hier rufe ich die Funktion makeCall mit dem DOM-Objekt als this auf
 makeCake.call(document.getElementById("cake"))
 }
  else {
