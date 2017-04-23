@@ -12,7 +12,7 @@ var cake = {
 	//hier rufe ich ein letztes Mal die ergänzte Funktion (mit dem DOM-Element) "updateFunction" auf, mit der ich den Text im DOM poste
 	//- hier erzeugt die Funktion serve den Text, ich kann die Funktion updateFunction im timeout nicht direkt ausführen, deswegen muss
 	//ich eine Funktion definieren, die die Funktion ausführt
-    setTimeout( () => {updateFunction(serve("Happy Eating!", this.customer))}, 2000)
+    setTimeout( () => {updateFunction(serve.call(this, "Happy Eating!", this.customer))}, 2000)
   }
 }
 
@@ -52,21 +52,23 @@ function updateStatus(statusText) {
 function bake(updateFunction) {
   var status = "Baking at " + this.bakeTemp + " for " + this.bakeTime
   //Achtung in setTimeout wird die Funktion nicht aufgerufen nur definiert
-  setTimeout(cool.bind(this, updateFunction), 2000);
+  setTimeout (function(){cool.call(this, updateFunction)}.bind(this), 2000)
+ // setTimeout(cool.bind(this, updateFunction), 2000);
   updateFunction(status)
 }
 
 function mix(updateFunction) {
   var status = "Mixing " + this.ingredients.join(", ")
-//Hier wird mit this jeweils Kuchen oder Pie weitergegeben, die updateFunction kennt schon ihr richtiges this
- setTimeout (bake.bind(this, updateFunction), 2000)
+//Hier wird mit this jeweils Kuchen oder Pie weitergegeben, die updateFunction kennt schon ihr richtiges DOM-this
+ setTimeout (function(){bake.call(this, updateFunction)}.bind(this), 2000)
  //someFn(callback.bind(this), 2000)
    updateFunction(status);
 }
 
 function cool(updateFunction) {
   var status = "It has to cool! Hands off!"
-  setTimeout(this.decorate.bind(this, updateFunction), 2000)
+  setTimeout (function(){this.decorate.call(this, updateFunction)}.bind(this), 2000)
+  //setTimeout(this.decorate.bind(this, updateFunction), 2000)
   updateFunction(status)
 }
 
