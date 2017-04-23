@@ -12,7 +12,7 @@ var cake = {
 	//hier rufe ich ein letztes Mal die ergänzte Funktion (mit dem DOM-Element) "updateFunction" auf, mit der ich den Text im DOM poste
 	//- hier erzeugt die Funktion serve den Text, ich kann die Funktion updateFunction im timeout nicht direkt ausführen, deswegen muss
 	//ich eine Funktion definieren, die die Funktion ausführt
-    setTimeout( () => {updateFunction(serve.call(this, "Happy Eating!", this.customer))}, 2000)
+  setTimeout( function(){updateFunction(serve.call(this, "Happy Eating!", this.customer))}.bind(this) , 2000)
   }
 }
 
